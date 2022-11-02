@@ -1,3 +1,4 @@
+import 'tw-elements';
 import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;

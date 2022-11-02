@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(ProductController::class)->group(function () {
     Route::get('/', 'index')->name('home');
     Route::get('product/{id}', 'showProduct')->name('show.product');
+    Route::get('/about', 'showAbout')->name('about');
 });
 
 Route::controller(CategoryController::class)->group(function () {
@@ -25,8 +26,8 @@ Route::middleware('auth')->controller(UserController::class)->group(function () 
 });
 
 Route::middleware('guest')->controller(AuthController::class)->group(function () {
-    Route::get('register', 'signOut')->name('signOut');
-    Route::post('register/registration', 'signOutProcess')->name('process.signOut');
+    Route::get('register', 'signUp')->name('signUp');
+    Route::post('register/registration', 'signUpProcess')->name('process.signUp');
     Route::get('login', 'signIn')->name('signIn');
     Route::post('login/authorization', 'signInProcess')->name('process.signIn');
 });
@@ -42,10 +43,6 @@ Route::middleware('auth')->controller(UserController::class)->group(function () 
     Route::get('/orders', 'showOrders')->name('show.orders');
 });
 
-
-Route::get('/about', function (){
-    return view('about');
-})->name('about');
 Route::get('/contact', function (){
     return view('contact');
 })->name('contact');

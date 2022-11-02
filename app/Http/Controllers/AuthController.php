@@ -33,17 +33,17 @@ class AuthController extends Controller
         return redirect()->intended(route('home'));
     }
 
-    public function signOut()
+    public function signUp()
     {
         return view('register');
     }
 
-    public function signOutProcess(Request $request)
+    public function signUpProcess(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'regex:/^[А-Яа-я\- ]+$/', 'string'],
-            'surname' => ['required', 'regex:/^[А-Яа-я\- ]+$/', 'string'],
-            'patronymic' => ['regex:/^[А-Яа-я\- ]+$/', 'string'],
+            'name' => ['required', 'regex:/^[\x{0400}-\x{04FF}\- ]+$/u', 'string'],
+            'surname' => ['required', 'regex:/^[\x{0400}-\x{04FF}\- ]+$/u', 'string'],
+            'patronymic' => ['regex:/^[\x{0400}-\x{04FF}\- ]+$/u', 'string'],
             'login' => ['required', 'unique:users,login', 'regex:/^[0-9A-Za-z\-]+$/', 'string'],
             'email' => ['required', 'unique:users,email', 'email', 'string'],
             'password' => ['required', 'confirmed', 'min:6'],
