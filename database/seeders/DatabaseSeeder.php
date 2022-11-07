@@ -23,21 +23,9 @@ class DatabaseSeeder extends Seeder
 
         AdminUser::factory(1)->create();
 
-        Product::factory(50)->state(new Sequence(
-            ['image' => '1.avif'],
-            ['image' => '2.avif'],
-            ['image' => '3.avif'],
-            ['image' => '4.avif'],
-        ))->create();
+        Product::factory(50)->create();
 
-//        Category::factory(5)->state(new Sequence(
-//            ['name' => 'Электроника', 'slug' => Str::of('Электроника')->slug('-')],
-//            ['name' => 'Товары для дома', 'slug' => Str::of('Товары для дома')->slug('-')],
-//            ['name' => 'Одежда', 'slug' => Str::of('Одежда')->slug('-')],
-//            ['name' => 'Аксессуары', 'slug' => Str::of('Аксессуары')->slug('-')],
-//            ['name' => 'Инструменты', 'slug' => Str::of('Инструменты')->slug('-')],
-//        ))->create();
-        Category::factory(5)->state(new Sequence(
+        Category::factory(3)->state(new Sequence(
             ['name' => 'Лазерные принтеры'],
             ['name' => 'Струйные принтеры'],
             ['name' => 'Термопринтеры'],

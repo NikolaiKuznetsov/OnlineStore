@@ -7,6 +7,7 @@ use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 
 class CheckoutController extends Controller
@@ -32,7 +33,7 @@ class CheckoutController extends Controller
     {
         $product = Product::find($request->product_id);
         if ($product->quantity === 0) {
-            return Response::json(['error' => 'Данный товар закончился']);
+            return Response::json(['errors' => 'Данный товар закончился']);
         }
 
         $product->quantity--;
@@ -63,28 +64,33 @@ class CheckoutController extends Controller
 
         $cart_products = Cart::get();
 
-        if (!$cart_products) {
-            return Response::json(['error' => 'Корзина пуста']);
+        if (!$cart_products->first()) {
+            return Response::json(['errors' => ['password' => ['Корзина пуста']]], 422);
         }
-        if (!auth('web')->once(['login' => $request->session()->has('login'), 'password' => $data->password])) {
-            return Response::json(['error' => 'Пароль введен не верно']);
+        if (!Hash::check($data['password'], Auth::user()->getAuthPassword())) {
+            return Response::json(['errors' => ['password' => ['Пароль введен не верно']]], 422);
         }
 
-        $order = Order::query()->create([
+        $order = Order::create([
             'user_id' => Auth::id(),
-            'status' => 'Создан',
+            'status' => 'Новый',
         ]);
 
         foreach ($cart_products as $cart_product) {
-            $order->items()->create([
-                'product_id' => $cart_product->id,
-                'price' => $cart_product->price,
+            $order->item()->create([
+                'product_id' => $cart_product->product_id,
+                'price' => $cart_product->price * $cart_product->quantity,
                 'quantity' => $cart_product->quantity,
+                'order_id' => $order->id,
             ]);
+            Cart::remove($cart_product->id);
         }
 
-        $cart_products->delete();
+        return redirect()->back();
+    }
 
-        return redirect()->route('basket.success')->with('success', 'Ваш заказ успешно размещен');
+    public function showSuccess()
+    {
+        return view('basket.success');
     }
 }

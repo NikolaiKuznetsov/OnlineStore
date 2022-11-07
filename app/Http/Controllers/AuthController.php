@@ -6,15 +6,16 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function signIn()
+    public function login()
     {
         return view('login');
     }
 
-    public function signInProcess(Request $request): RedirectResponse
+    public function loginProcess(Request $request): RedirectResponse
     {
         $validate = Auth::attempt($request->validate([
             'login' => ['required', 'string'],
@@ -28,17 +29,16 @@ class AuthController extends Controller
         }
 
         $request->session()->regenerate();
-        session(['login' => $request->email]);
 
         return redirect()->intended(route('home'));
     }
 
-    public function signUp()
+    public function register()
     {
         return view('register');
     }
 
-    public function signUpProcess(Request $request)
+    public function registerProcess(Request $request)
     {
         $data = $request->validate([
             'name' => ['required', 'regex:/^[\x{0400}-\x{04FF}\- ]+$/u', 'string'],
@@ -50,7 +50,14 @@ class AuthController extends Controller
             'rules' => ['required'],
         ]);
 
-        $user = User::query()->create($data);
+        $user = User::query()->create([
+            'name' => $data['name'],
+            'surname' => $data['surname'],
+            'patronymic' => $data['patronymic'],
+            'login' => $data['login'],
+            'email' => $data['email'],
+            'password' => Hash::make($data['password']),
+        ]);
 
         if ($user) {
             Auth::login($user);

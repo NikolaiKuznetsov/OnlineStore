@@ -20,6 +20,7 @@ class ProductFactory extends Factory
             'year' => $this->faker->year(),
             'model' => $this->faker->word(),
             'quantity' => $this->faker->randomNumber(2),
+            'image' => $this->faker->randomElement(['1.avif', '2.avif', '3.avif', '4.avif']),
         ];
     }
 }

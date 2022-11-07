@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\Cart;
+use App\Models\Category;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -28,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
         View::composer(['partials.header'], function ($view) {
             $view->with([
                 'count' => Cart::count(),
+            ]);
+        });
+        View::composer(['catalog'], function ($view) {
+            $view->with([
+                'categories' => Category::all(),
             ]);
         });
     }

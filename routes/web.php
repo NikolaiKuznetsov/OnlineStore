@@ -15,6 +15,7 @@ Route::controller(ProductController::class)->group(function () {
 
 Route::controller(CategoryController::class)->group(function () {
     Route::get('catalog', 'showCatalog')->name('show.catalog');
+    Route::get('catalog/{slug}', 'showCategory')->name('show.category');
 });
 
 Route::middleware('auth')->controller(AuthController::class)->group(function () {
@@ -22,14 +23,15 @@ Route::middleware('auth')->controller(AuthController::class)->group(function () 
 });
 
 Route::middleware('auth')->controller(UserController::class)->group(function () {
-    Route::get('user/{login}', 'showUserProfile')->name('show.user.profile');
+    Route::get('user/{login}', 'showUser')->name('show.user');
+    Route::get('order-delete/{id}', 'deleteOrder')->name('delete.order');
 });
 
 Route::middleware('guest')->controller(AuthController::class)->group(function () {
-    Route::get('register', 'signUp')->name('signUp');
-    Route::post('register/registration', 'signUpProcess')->name('process.signUp');
-    Route::get('login', 'signIn')->name('signIn');
-    Route::post('login/authorization', 'signInProcess')->name('process.signIn');
+    Route::get('register', 'register')->name('register');
+    Route::post('register/registration', 'registerProcess')->name('process.register');
+    Route::get('login', 'login')->name('login');
+    Route::post('login/authorization', 'loginProcess')->name('process.login');
 });
 
 Route::middleware('auth')->controller(CheckoutController::class)->group(function () {
@@ -37,10 +39,7 @@ Route::middleware('auth')->controller(CheckoutController::class)->group(function
     Route::post('checkout/add', 'addCheckout')->name('checkout.add');
     Route::post('checkout/change-quantity', 'changeQuantity')->name('change.quantity');
     Route::post('checkout/save-order', 'saveOrder')->name('save.order');
-});
-
-Route::middleware('auth')->controller(UserController::class)->group(function () {
-    Route::get('/orders', 'showOrders')->name('show.orders');
+    Route::get('checkout/success', 'showSuccess')->name('show.success');
 });
 
 Route::get('/contact', function (){

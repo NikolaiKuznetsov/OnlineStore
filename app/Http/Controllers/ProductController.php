@@ -14,9 +14,18 @@ class ProductController extends Controller
         return view('home', ['products' => $products]);
     }
 
+    public function showProduct($id)
+    {
+        $product = Product::findOrFail($id);
+
+        return view('product', [
+            'product' => $product,
+        ]);
+    }
+
     public function showAbout()
     {
-        $products = Product::orderBy('created_at', 'DESC')->limit(5)->get();
+        $products = Product::where('quantity', '>', 0)->orderBy('created_at', 'DESC')->limit(5)->get();
         return view('about', ['products' => $products]);
     }
 }
