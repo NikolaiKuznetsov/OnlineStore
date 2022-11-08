@@ -20,29 +20,57 @@ class ProductController extends Controller
 
         return view('admin.product', [
             'products' => $products,
-            'title' => 'Создание/редактирование товаров'
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
     public function create()
     {
-        //
+        $categories = Category::all();
+
+        return view('admin.product_create', [
+            'categories' => $categories,
+        ]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'price' => ['required', 'integer'],
+            'image' => ['required', 'image'],
+            'country' => ['required', 'string'],
+            'year' => ['required', 'integer'],
+            'model' => ['required', 'string'],
+            'quantity' => ['required', 'integer'],
+            'category' => ['required', 'exists:categories,id']
+        ]);
+
+        $data['image'] = str_replace('products/', '', $request->file('image')->store('products'));
+
+        $product = Product::create([
+            'name' => $data['name'],
+            'price' => $data['price'],
+            'image' => $data['image'],
+            'country' => $data['country'],
+            'year' => $data['year'],
+            'model' => $data['model'],
+            'quantity' => $data['quantity'],
+        ]);
+
+        $product->category()->attach(Category::find($data['category']));
+
+        return redirect()->route('admin.products.index');
     }
 
     /**
@@ -67,10 +95,9 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         $categories = Category::all();
 
-        return view('admin.product_edit', [
+        return view('admin.product_create', [
             'product' => $product,
             'categories' => $categories,
-            'title' => 'Редактирование ' . $product->name,
         ]);
     }
 
@@ -79,11 +106,32 @@ class ProductController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $data = $request->validate([
+            'name' => ['required', 'string'],
+            'price' => ['required', 'integer'],
+            'image' => ['image'],
+            'country' => ['required', 'string'],
+            'year' => ['required', 'integer'],
+            'model' => ['required', 'string'],
+            'quantity' => ['required', 'integer'],
+            'category' => ['required', 'exists:categories,id']
+        ]);
+
+        if ($request->has('image')) {
+            $data['image'] = str_replace('products/', '', $request->file('image')->store('products'));
+        }
+
+        $product->update($data);
+
+        $product->category()->sync(Category::find($data['category']));
+
+        return redirect()->route('admin.products.index');
     }
 
     /**

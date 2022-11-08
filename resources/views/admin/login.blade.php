@@ -17,7 +17,7 @@
                     @csrf
                     <input name="login" type="text" class="w-full h-12 border rounded px-3 @error('login') border-red-500 @enderror" placeholder="Логин" value="{{ old('login') }}">
                     @error('login')
-                        <p class="text-red-500">{{ $message }}</p>
+                        <p class="text-red-500 text-xs italic">{{ $message }}</p>
                     @enderror
 
                     <input name="password" type="password" class="w-full h-12 border rounded px-3 @error('login') border-red-500 @enderror" placeholder="Пароль" />

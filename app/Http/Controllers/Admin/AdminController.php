@@ -10,12 +10,6 @@ class AdminController extends Controller
 {
     public function index()
     {
-        if (Auth::guard('admin')->guest()) {
-            return redirect()->route('admin.login');
-        }
-
-        return view('admin.home', [
-            'title' => 'Главная страница',
-        ]);
+        return view('admin.home');
     }
 }
