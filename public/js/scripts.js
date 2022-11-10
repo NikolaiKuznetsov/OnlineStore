@@ -141,19 +141,15 @@ window.onload = function () {
   }
   var targetEl = document.getElementById('dropdownNavbarLink');
   var triggerEl = document.getElementById('dropdownNavbar');
-  var options = {
-    triggerEl: triggerEl,
-    onCollapse: function onCollapse() {
-      console.log('element has been collapsed');
-    },
-    onExpand: function onExpand() {
-      console.log('element has been expanded');
-    },
-    onToggle: function onToggle() {
-      console.log('element has been toggled');
-    }
+  var collapse = new Collapse(targetEl, triggerEl);
+  window.showModalForm = function (id) {
+    var modalForm = document.getElementById('formInModal');
+    var url = new URL(modalForm.action);
+    var pathname = url.pathname.split('/');
+    pathname[3] = id;
+    url.pathname = pathname.join('/');
+    modalForm.action = url;
   };
-  var collapse = new Collapse(targetEl, options);
 };
 /******/ })()
 ;

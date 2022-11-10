@@ -1,21 +1,18 @@
 @extends('layouts.dashboard')
-@section('title', 'Заказы')
+@section('title', 'Заказ №' . $order->id)
 @section('content')
     <div class="container mx-auto px-6 py-8">
-        <h3 class="text-gray-700 text-3xl font-medium">Заказы</h3>
+        <h3 class="text-gray-700 text-3xl font-medium">Заказ №{{ $order->id }}</h3>
 
-        <ul class="flex flex-col p-4 mt-8 md:flex-row md:text-sm md:font-medium items-center">
-            <li>
-                <form method="GET">
-                    <select name="sort" onchange="this.form.submit()" class="form-select appearance-none block w-full py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding bg-no-repeat border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none" aria-label="Default select example">
-                        <option selected>Отобразить заказы:</option>
-                        <option value="Новый">Новые</option>
-                        <option value="Подтвержден">Подтвержденные</option>
-                        <option value="Отменен">Отмененные</option>
-                    </select>
-                </form>
-            </li>
-        </ul>
+        <div class="mt-8 flex flex-row">
+            <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" class="px-5">
+                @csrf
+                <button type="submit" class="text-green-600 hover:text-green-900 pb-3">Подтвердить</button>
+            </form>
+            <div>
+                <button id="button-modal" type="button" data-modal-toggle="popup-modal" class="text-red-600 hover:text-red-900">Отменить</button>
+            </div>
+        </div>
 
         <div class="flex flex-col mt-8">
             <div class="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
@@ -24,16 +21,15 @@
                         <thead>
                             <tr>
                                 <th class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
-                                    Заказы
+                                    {{ $order->created_at->format('d F Y, H:i') }}
                                 </th>
                                 <th class="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
                             </tr>
                         </thead>
 
                         <tbody class="bg-white">
-                        @foreach($orders as $order)
-                            <tr class="border-b border-gray-200">
-                                <td class="px-6 py-4 whitespace-no-wrap">
+                            <tr class="border-b border-gray-400">
+                                <td class="w-full px-6 py-4 whitespace-nowrap" colspan="2">
                                     @switch($order->status)
                                         @case('Новый')
                                             <div class="text-sm font-bold italic leading-5 text-green-600">{{ $order->status }}</div>
@@ -48,28 +44,33 @@
                                             <div class="text-sm font-bold italic leading-5 text-gray-600">{{ $order->status }}</div>
                                             @break
                                     @endswitch
-                                    <div class="text-md leading-5 text-gray-900">Заказ №{{ $order->id }} ({{ $order->created_at->format('d F Y, H:i') }})</div>
-                                    <div class="text-sm leading-5 text-gray-600">Пользователь: {{ $order->user()->first()->name . ' ' . $order->user()->first()->surname . ' ' . $order->user()->first()->patronymic }}</div>
+                                    <div class="text-md leading-5 text-gray-600">Пользователь: {{ $order->user()->first()->name . ' ' . $order->user()->first()->surname . ' ' . $order->user()->first()->patronymic }}</div>
                                     <div class="text-sm leading-5 text-gray-600">Товаров: {{ $order->item()->count() }}</div>
                                 </td>
-
-                                <td class="px-6 py-4 text-right whitespace-no-wrap font-medium leading-5 text-sm flex flex-col">
-                                    <a href="{{ route('admin.orders.edit', $order->id) }}" class="text-indigo-600 hover:text-indigo-900 pb-3">Редактировать</a>
-                                    <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="text-green-600 hover:text-green-900 pb-3">Подтвердить</button>
-                                    </form>
-                                    <div>
-                                        <button id="button-modal" onclick="showModalForm({{ $order->id }})" type="button" data-modal-toggle="popup-modal" class="text-red-600 hover:text-red-900">Отменить</button>
-                                    </div>
-                                </td>
                             </tr>
-                        @endforeach
+                            @foreach($order->item()->get() as $item)
+                                @php
+                                    $product = $item->product()->first();
+                                @endphp
+                                <tr class="border-b border-gray-200">
+                                    <td class="pl-16 py-4 whitespace-nowrap">
+                                        <div class="flex flex-row items-center">
+                                            <div class="h-16 w-16 bg-cover mr-5" style="background-image: url('{{ asset('storage/products/' . $product->image) }}')"></div>
+                                            <div>
+                                                <div class="text-md leading-5 text-gray-900">{{ $product->name }}</div>
+                                                <div class="text-sm leading-5 text-gray-600">Количество: {{ $item->quantity }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td class="pr-6 py-4 whitespace-nowrap text-right text-sm leading-5 font-medium flex flex-col">
+                                        <div class="text-sm leading-5 text-gray-600">Цена: {{ $product->price }}</div>
+                                        <div class="text-sm leading-5 text-gray-600">Сумма: {{ $item->price }}</div>
+                                    </td>
+                                </tr>
+                            @endforeach
                         </tbody>
                     </table>
-                </div>
-                <div class="mt-8">
-                    {{ $orders->appends(\Request::except('page'))->render() }}
                 </div>
             </div>
         </div>
@@ -84,7 +85,7 @@
                 <div class="p-6 text-center">
                     <svg aria-hidden="true" class="mx-auto mb-4 w-14 h-14 text-gray-400 dark:text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     <h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">Укажите причину отмены заказа.</h3>
-                    <form id="formInModal" action="{{ route('admin.orders.cancel', 1) }}" method="POST" class="px-5">
+                    <form action="{{ route('admin.orders.cancel', $order->id) }}" method="POST" class="px-5">
                         @csrf
                         <textarea name="comment" cols="30" rows="10"></textarea>
                         <button data-modal-toggle="popup-modal" type="submit" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2">

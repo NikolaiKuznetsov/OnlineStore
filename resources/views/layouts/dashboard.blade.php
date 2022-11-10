@@ -7,6 +7,8 @@
         <title>@yield('title')</title>
 
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+        <script src="{{ asset('js/app.js') }}" defer></script>
+        <script src="{{ asset('js/scripts.js') }}" defer></script>
     </head>
     <body>
         <div>
@@ -21,6 +23,5 @@
                 </div>
             </div>
         </div>
-        <script src="{{ asset('js/app.js') }}" defer></script>
     </body>
 </html>

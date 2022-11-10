@@ -95,18 +95,14 @@ window.onload = function() {
 
     const targetEl = document.getElementById('dropdownNavbarLink');
     const triggerEl = document.getElementById('dropdownNavbar');
+    const collapse = new Collapse(targetEl, triggerEl);
 
-    const options = {
-        triggerEl: triggerEl,
-        onCollapse: () => {
-            console.log('element has been collapsed')
-        },
-        onExpand: () => {
-            console.log('element has been expanded')
-        },
-        onToggle: () => {
-            console.log('element has been toggled')
-        }
-    };
-    const collapse = new Collapse(targetEl, options);
+    window.showModalForm = function(id) {
+        const modalForm = document.getElementById('formInModal');
+        let url = new URL(modalForm.action);
+        let pathname = url.pathname.split('/');
+        pathname[3] = id;
+        url.pathname = pathname.join('/');
+        modalForm.action = url;
+    }
 };

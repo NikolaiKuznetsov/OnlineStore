@@ -32,7 +32,7 @@
         </div>
         @include('partials.card', ['products' => $products])
         <div class="mt-8">
-            {{ $products->links() }}
+            {{ $products->appends(\Request::except('page'))->render() }}
         </div>
     </div>
 @endsection
