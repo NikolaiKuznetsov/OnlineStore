@@ -10,15 +10,16 @@ class CategoryController extends Controller
 {
     public function showCatalog(Request $request)
     {
-        $key = $request->keys();
-
-        if ($key && $key[0] === 'sort' && ($request->input($key[0]) === 'name' || $request->input($key[0]) === 'year' || $request->input($key[0])  === 'price')) {
-            $products = Product::where('quantity', '>', 0)->orderBy($request->input($key[0]))->paginate(16);
-        } elseif ($key && $key[0] === 'page') {
-            $products = Product::where('quantity', '>', 0)->orderBy('created_at', 'DESC')->paginate(16);
-        } else {
-            $products = Product::where('quantity', '>', 0)->orderBy('created_at', 'DESC')->paginate(16);
-        }
+        $sort = match (request()->input('sort')) {
+            'name', 'year', 'price' => request()->input('sort'),
+            default => null,
+        };
+        $products = Product::where('quantity', '>', 0)
+            ->when($sort, function ($query) use ($sort) {
+                return $query->orderBy($sort);
+            }, function ($query) {
+                return $query->orderBy('created_at', 'DESC');
+            })->paginate(16);
 
         return view('catalog', [
             'products' => $products,
@@ -33,15 +34,16 @@ class CategoryController extends Controller
             abort(404);
         }
 
-        $key = $request->keys();
-
-        if ($key && $key[0] === 'sort' && ($request->input($key[0]) === 'name' || $request->input($key[0]) === 'year' || $request->input($key[0])  === 'price')) {
-            $products = $category->product()->where('quantity', '>', 0)->orderBy($request->input($key[0]))->paginate(16);
-        } elseif ($key && $key[0] === 'page') {
-            $products = $category->product()->where('quantity', '>', 0)->orderBy('created_at', 'DESC')->paginate(16);
-        } else {
-            $products = $category->product()->where('quantity', '>', 0)->orderBy('created_at', 'DESC')->paginate(16);
-        }
+        $sort = match (request()->input('sort')) {
+            'name', 'year', 'price' => request()->input('sort'),
+            default => null,
+        };
+        $products = $category->product()->where('quantity', '>', 0)
+            ->when($sort, function ($query) use ($sort) {
+                return $query->orderBy($sort);
+            }, function ($query) {
+                return $query->orderBy('created_at', 'DESC');
+            })->paginate(16);
 
         return view('catalog', [
             'products' => $products,

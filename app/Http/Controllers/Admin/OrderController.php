@@ -10,16 +10,12 @@ class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $key = $request->keys();
-
-        if ($key && $key[0] === 'sort') {
-            $value = $request->input($key[0]);
-            $orders = Order::whereStatus($value)->orderBy('created_at', 'DESC')->paginate(20);
-        } elseif ($key && $key[0] === 'page') {
-            $orders = Order::orderBy('created_at', 'DESC')->paginate(20);
-        } else {
-            $orders = Order::orderBy('created_at', 'DESC')->paginate(20);
-        }
+        $sort = request()->input('sort');
+        $orders = Order::when($sort, function ($query) use ($sort) {
+                return $query->whereStatus($sort)->orderBy('created_at', 'DESC');
+            }, function ($query) {
+                return $query->orderBy('created_at', 'DESC');
+            })->paginate(20);
 
         return view('admin.order', [
             'orders' => $orders,
